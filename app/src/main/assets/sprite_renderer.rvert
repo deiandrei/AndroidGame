@@ -1,0 +1,12 @@
+attribute vec4 mPosTex;
+varying vec2 TexCoord;
+
+uniform vec2 mSize;
+
+uniform mat4 mCameraVP, mModel;
+
+
+void main() {
+	gl_Position = mCameraVP * mModel * vec4(mPosTex.xy * mSize, 0.0, 1.0);
+	TexCoord = mPosTex.zw;
+}
