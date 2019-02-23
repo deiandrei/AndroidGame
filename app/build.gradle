@@ -16,6 +16,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {                       // this wasn't here before
+        main {                         // this wasn't here before
+            jniLibs.srcDirs = ['libs'] // this wasn't here before
+        }                              // this wasn't here before
+
+    }
 }
 
 repositories {
@@ -35,5 +42,16 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation "org.joml:joml-android:${jomlVersion}"
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+
+
+    implementation group: 'org.jbox2d', name: 'jbox2d', version: '2.1.2.2', ext: 'pom'
+    // https://mvnrepository.com/artifact/org.jbox2d/jbox2d-library
+    implementation group: 'org.jbox2d', name: 'jbox2d-library', version: '2.2.1.1'
+
+
+
+
 }
 

@@ -4,6 +4,8 @@ import android.opengl.GLES30;
 
 import com.example.deian.myapplication.Engine.Core.Manager;
 import com.example.deian.myapplication.Engine.Object.Sprite;
+import com.example.deian.myapplication.Engine.Object.TexturedSprite;
+import com.example.deian.myapplication.Engine.Scene.Container;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -47,11 +49,16 @@ public class SpriteRenderer {
         GLES30.glEnableVertexAttribArray(0);
         GLES30.glVertexAttribPointer(0, 4, GLES30.GL_FLOAT, false,16, mVertices);
 
+        GLES30.glEnable(GLES30.GL_BLEND);
+        GLES30.glBlendFunc(GLES30.GL_SRC_ALPHA, GLES30.GL_ONE_MINUS_SRC_ALPHA);
+
         //Bind shader
         Manager.Instance().BindShader("sprite-renderer");
     }
 
     public void End() {
+        GLES30.glDisable(GLES30.GL_BLEND);
+
         GLES30.glDisableVertexAttribArray(0);
     }
 
@@ -60,6 +67,18 @@ public class SpriteRenderer {
         Manager.Instance().GetShader().UpdateVec2(sprite.Size, "mSize");
 
         GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_SHORT, mIndices);
+    }
+
+    public void Render(TexturedSprite sprite) {
+        Manager.Instance().GetShader().UpdateInt(0, "mTexture");
+        sprite.mTexture.Bind(0);
+
+        Render((Sprite)sprite);
+    }
+
+    public void Render(Container container) {
+        for(int i=0; i<container.mSprites.size(); i++)
+            Render(container.Get(i));
     }
 
 }

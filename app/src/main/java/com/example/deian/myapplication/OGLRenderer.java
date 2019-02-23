@@ -6,10 +6,21 @@ import android.opengl.GLES30;
 import com.example.deian.myapplication.Engine.Core.Manager;
 import com.example.deian.myapplication.Engine.Material.Texture2D;
 import com.example.deian.myapplication.Engine.Object.Sprite;
+import com.example.deian.myapplication.Engine.Object.TexturedSprite;
 import com.example.deian.myapplication.Engine.Render.Camera.Camera2D;
 import com.example.deian.myapplication.Engine.Render.Renderer.SpriteRenderer;
 import com.example.deian.myapplication.Engine.Render.Shader;
+import com.example.deian.myapplication.Engine.Scene.Container;
+import com.example.deian.myapplication.Engine.Scene.PhysicsCore;
 
+import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.BodyDef;
+import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.Fixture;
+import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.World;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
@@ -22,11 +33,9 @@ import javax.microedition.khronos.opengles.GL10;
 public class OGLRenderer implements GLSurfaceView.Renderer {
 
     private SpriteRenderer mRenderer;
-    private Texture2D mTex;
     private Camera2D mCamera;
-    private Sprite mSprite1, mSprite2;
-
-    private float tt;
+    private Container mScene;
+    private PhysicsCore mPhysics;
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -37,36 +46,33 @@ public class OGLRenderer implements GLSurfaceView.Renderer {
         // Set the background frame color
         GLES30.glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 
-        mTex = Manager.Instance().GetTexture("test.jpg");
         mCamera = new Camera2D(Manager.Instance().mWidth, Manager.Instance().mHeight);
         mRenderer = new SpriteRenderer();
+        mScene = new Container();
 
-        mSprite1 = new Sprite(new Vector2i(100, 200));
-        mSprite2 = new Sprite(new Vector2i(300, 300));
-        mSprite2.Position = new Vector2i(150,500);
-        mSprite2.Rotation = 45.0f;
+        mScene.Add(new TexturedSprite(Manager.Instance().GetTexture("particle.png"), new Vector2i(100, 200), new Vector2i(0, 0), 0.0f));
+        mScene.Add(new TexturedSprite(Manager.Instance().GetTexture("particle.png"), new Vector2i(300, 300), new Vector2i(150, 500), 0.0f));
+        mScene.Add(new TexturedSprite(Manager.Instance().GetTexture("test.jpg"), new Vector2i(50,50), new Vector2i(400, 400), 0.0f));
 
-        tt = 0.0f;
+        mPhysics = new PhysicsCore();
+
+        mPhysics.Import(mScene);
+
+        mScene.Add(new TexturedSprite(Manager.Instance().GetTexture("test.jpg"), new Vector2i(1000,50), new Vector2i(0, 1000), 0.0f));
+        mPhysics.Add(mScene.mSprites.get(3), true);
     }
 
     public void onDrawFrame(GL10 unused) {
         // Redraw background color
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT);
 
-        mSprite2.Position.x = mSprite2.Position.x + (int)(10 * Math.sin(tt));
-        tt += 0.1f;
+        mPhysics.Update(1.0f/60.0f);
 
         mRenderer.Begin();
         mCamera.UpdateShader(Manager.Instance().GetShader());
 
-        Manager.Instance().GetShader().UpdateInt(0, "mTexture");
-        mTex.Bind(0);
-
-        mRenderer.Render(mSprite1);
-        mRenderer.Render(mSprite2);
+        mRenderer.Render(mScene);
         mRenderer.End();
-
-
     }
 
     public void onSurfaceChanged(GL10 unused, int width, int height) {

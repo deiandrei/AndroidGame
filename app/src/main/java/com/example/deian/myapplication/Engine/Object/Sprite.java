@@ -14,10 +14,10 @@ public class Sprite {
         Rotation = 0.0f;
     }
 
-    public Sprite(Vector2i size) {
+    public Sprite(Vector2i size, Vector2i position, float rotation) {
         Size = size;
-        Position = new Vector2i(0,0);
-        Rotation = 0.0f;
+        Position = position;
+        Rotation = rotation;
     }
 
 }
